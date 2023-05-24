@@ -11,7 +11,7 @@ export const DbConfig: SequelizeModuleOptions = {
   database: process.env.DATABASE_NAME,
   host: process.env.DATABASE_HOST,
   port: +process.env.DATABASE_PORT,
-//   synchronize: true, //change later 
+  synchronize: true, //change later 
   autoLoadModels: true,
 //   models: ['**/*.entity.js'],
 };

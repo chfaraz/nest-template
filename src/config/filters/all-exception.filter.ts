@@ -40,7 +40,7 @@ import {
       if (exception instanceof HttpException) {
         status = exception.getStatus();
         const errorResponse = exception.getResponse();
-        this.statusCode = (errorResponse as HttpExceptionResponse).statusCode;
+        this.statusCode = (errorResponse as HttpExceptionResponse)?.statusCode;
         errorMessage =
           (errorResponse as HttpExceptionResponse).error || exception.message;
   

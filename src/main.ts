@@ -61,7 +61,6 @@ async function bootstrap() {
     .setDescription('The cms API description')
     .setVersion('1.0')
     .addTag('CMS')
-    .setBasePath('api/v1')
     .addBearerAuth(
       {
         description: `[just text field] Please enter token in following format: Bearer <JWT>`,

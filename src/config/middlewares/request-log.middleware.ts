@@ -11,7 +11,7 @@ export class AppLoggerMiddleware implements NestMiddleware {
     const userAgent = request.get('user-agent') || '';
     //events order finish -> end -> close
     response.on('finish', () => {
-      const statusCode = response.statusCode;
+      const statusCode = response?.statusCode;
       if (statusCode === 401 || statusCode === 404 || statusCode === 405) {
         this.logger.warn(`[${request.method}] ${request.url} - ${statusCode}`);
       }
