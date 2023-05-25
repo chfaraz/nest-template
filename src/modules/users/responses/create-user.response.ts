@@ -1,15 +1,8 @@
 export const createUserResponse = {
   schema: {
     properties: {
-      statusCode: {
-        type: 'number',
-        default: 200
-      },
       success: {
         type: 'boolean',
-      },
-      message: {
-        type: 'string',
       },
       data: {
         type: 'object',
@@ -23,6 +16,17 @@ export const createUserResponse = {
           lastName: {
             type: 'string',
           },
+          email: { type: 'string' },
+          userName: { type: 'string' },
+          roles: {
+            type: 'array',
+            items: {
+              type: 'string',
+            },
+          },
+          picture: { type: 'string' },
+          createdAt: { type: 'string' },
+          updatedAt: { type: 'string' },
         },
       },
     },

@@ -18,37 +18,37 @@ export class CreateUserDto {
   lastName: string;
 
   @ApiProperty({
-    description: 'Last Name of user',
-    required: true,
+    description: 'email',
+    required: false,
   })
   @IsEmail()
   @IsOptional()
   email: string;
 
   @ApiProperty({
-    description: 'Last Name of user',
+    description: 'userName',
     required: true,
   })
   @IsString()
   userName: string;
 
   @ApiProperty({
-    description: 'Last Name of user',
+    description: 'password',
     required: true,
   })
   @IsString()
   password: string;
 
   @ApiProperty({
-    description: 'Last Name of user',
+    description: 'roles',
     required: true,
   })
   @IsEnum(Role, { each: true })
   roles: Role[];
 
   @ApiProperty({
-    description: 'Last Name of user',
-    required: true,
+    description: 'picture url',
+    required: false,
   })
   @IsOptional()
   @IsString()

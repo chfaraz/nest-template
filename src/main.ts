@@ -7,6 +7,7 @@ import { WinstonModule } from 'nest-winston';
 import * as winston from 'winston';
 import 'winston-daily-rotate-file';
 require('winston-daily-rotate-file');
+import * as bodyParser from 'body-parser';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
@@ -77,6 +78,7 @@ async function bootstrap() {
   SwaggerModule.setup('api/v1/docs', app, document);
 
   app.enableCors();
+  app.use(bodyParser.json({ limit: '10mb' }));
 
   await app.listen(3000);
 }
