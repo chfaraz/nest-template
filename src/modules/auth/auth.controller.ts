@@ -22,11 +22,14 @@ import { CreateUserDto } from 'src/config/dtos/create-user.dto';
 import { Role } from 'src/config/enums/role.enum';
 import { DefaultException } from 'src/config/exceptions/default.exception';
 import { JwtAuthGuard } from 'src/config/guards/jwt-auth.guard';
+import { RefreshTokenGuard } from 'src/config/guards/refresh.guard';
 import { User } from '../users/entities/user.entity';
 import { createUserResponse } from '../users/responses/create-user.response';
 import { AuthService } from './auth.service';
 import { SigninDto } from './dto/signin.dto';
 import { SigninInterface } from './interfaces/signin.interface';
+import { Tokens } from './interfaces/token.interface';
+import { JwtRefreshStrategy } from './strategies/refresh-jwt.strategy';
 import { SigninResponse } from './responses/signin.response';
 
 @ApiTags('auth')
@@ -53,9 +56,23 @@ export class AuthController {
   @ApiResponse({ status: 400, type: () => DefaultException })
   @Roles(Role.SUPERADMIN, Role.ADMIN, Role.MANAGER)
   @Post('signup')
-  signUp(@Body() signUpDto: CreateUserDto,  @Request() req: any):Promise<User> {
-    console.log(11111);
-    
-    return this.authService.signUp(signUpDto, req.user);
+  async signUp(@Body() signUpDto: CreateUserDto,  @Request() req: any):Promise<User> {
+    const res = await this.authService.signUp(signUpDto, req.user);
+    const { password, ...userData } = res.dataValues;
+    return new User(userData)
+
+  }
+
+  @ApiBearerAuth('access-token')
+  @ApiOperation({
+    description: 'This Endpoint will give you new pair of token if your refresh token is valid.',
+  })
+  @ApiOkResponse(SigninResponse)
+  @ApiResponse({ status: 400, type: () => DefaultException })
+  @Public()
+  @UseGuards(RefreshTokenGuard)
+  @Post('refresh')
+  refreshToken( @Request() req: any):Promise<Tokens> {
+    return this.authService.getTokens(req.user);
   }
 }

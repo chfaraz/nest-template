@@ -1,4 +1,5 @@
 export interface SigninInterface {
   userName: string;
-  token: string;
+  accessToken: string;
+  refreshToken: string;
 }

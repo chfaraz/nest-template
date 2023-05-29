@@ -59,9 +59,11 @@ export class UsersController {
   @Get()
   async findAll(
     @Query()
-    userQueryRequestDto: CommonPaginationQueryRequestDto,
+    userQueryRequestDto: CommonPaginationQueryRequestDto, @Request() req: any,
   ) {
-    return this.usersService.findAll(userQueryRequestDto);
+    const res = await this.usersService.findAll(userQueryRequestDto, req.user);
+    res.rows.forEach((item) => delete item.dataValues.password);
+    return res;
   }
 
   @ApiBearerAuth('access-token')
@@ -70,11 +72,12 @@ export class UsersController {
   })
   @ApiOkResponse(createUserResponse)
   @ApiResponse({ status: 400, type: () => DefaultException })
-  @Roles(Role.USER)
+  @Roles(Role.USER, Role.ADMIN, Role.MANAGER)
   @Get(':id')
   async findOne(@Param('id') id: string): Promise<User> {
+    //? if id in param then that otherwise use from req.user todo
     const res = await this.usersService.findOne({ id });
-    delete res.dataValues.password;
+    delete res?.dataValues.password;
     return res;
   }
 

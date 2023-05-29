@@ -34,6 +34,7 @@ export class UsersService {
 
   async findAll(
     filters: CommonPaginationQueryRequestDto,
+    user:any
   ): Promise<{ count: number; rows: User[] }> {
     const res = await this.userRepository.findAndCountAll({
       where: {
@@ -41,11 +42,12 @@ export class UsersService {
           { firstName: { [Op.iLike]: `%${filters.search ?? ''}%` } },
           { lastName: { [Op.iLike]: `%${filters.search ?? ''}%` } },
         ],
+        //get user id and give him only his users => 
+        // adminId:user.roles.includes('SUPERADMIN')?'':user.id
       },
       limit: filters.limit ?? 10,
       offset: filters.offset ?? 0,
     });
-    res.rows.forEach((item) => delete item.dataValues.password);
     return res;
   }
 

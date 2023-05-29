@@ -12,6 +12,7 @@ import { UsersService } from '../users/users.service';
 import { SigninDto } from './dto/signin.dto';
 import { SigninInterface } from './interfaces/signin.interface';
 import { Op } from 'sequelize';
+import { Tokens } from './interfaces/token.interface';
 
 @Injectable()
 export class AuthService {
@@ -38,7 +39,13 @@ export class AuthService {
       [Op.or]: [{ email: signUpDto.email }, { userName: signUpDto.userName }],
       email: signUpDto.email,
     });
-    if (exist) throw new ConflictException('email or username already exist');
+    if (exist) {
+      const err =
+        exist.email === signUpDto.email
+          ? 'email already exist'
+          : 'userName already exist';
+      throw new ConflictException(err);
+    }
 
     const salt = await bcrypt.genSalt();
     const hash = await bcrypt.hash(signUpDto.password, salt);
@@ -47,14 +54,14 @@ export class AuthService {
       ...signUpDto,
       password: hash,
     });
-    const { password, ...userData } = res.dataValues;
-    return new User(userData);
+    // const { password, ...userData } = res.dataValues;
+    return res;
+    //call signin and send token here
   }
 
   async signIn(signInDto: SigninDto): Promise<SigninInterface> {
     const { userName, password } = signInDto;
     const found = await this.usersService.findOne({ userName });
-    console.log(found);
 
     if (!found) throw new NotFoundException('invalid credentials');
 
@@ -62,9 +69,9 @@ export class AuthService {
     if (!isMatch) {
       throw new NotFoundException('invalid credentials');
     }
-    const token = await this.getToken(found);
+    const tokens = await this.getTokens(found);
 
-    return { userName, token };
+    return { userName, ...tokens };
   }
 
   async validateUser(signInDto: SigninDto): Promise<SigninInterface | null> {
@@ -75,7 +82,7 @@ export class AuthService {
     return null;
   }
 
-  async getToken(user: User): Promise<string> {
+  async getTokens(user: User): Promise<Tokens> {
     const payload = {
       id: user.id,
       firstName: user.firstName,
@@ -83,6 +90,19 @@ export class AuthService {
       roles: user.roles,
       userName: user.userName,
     };
-    return await this.jwtService.signAsync(payload);
+    const [accessToken, refreshToken] = await Promise.all([
+      this.jwtService.signAsync(payload, {
+        secret: process.env.JWT_ACCESS_SECRET,
+        expiresIn: '50d',
+      }),
+      this.jwtService.signAsync(payload, {
+        secret: process.env.JWT_REFRESH_SECRET,
+        expiresIn: '25d',
+      }),
+    ]);
+    return {
+      accessToken,
+      refreshToken,
+    };
   }
 }
